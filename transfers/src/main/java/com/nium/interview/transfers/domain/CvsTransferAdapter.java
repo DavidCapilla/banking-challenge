@@ -19,8 +19,10 @@ public class CvsTransferAdapter implements TransferAdapter {
   @Override
   public Transfer getTransfer(String input) {
 
-    String[] values = input.split(separator);
+    if (input.startsWith("#"))
+      return null;
 
+    String[] values = input.split(separator);
     return Transfer.builder()
         .sourceAccount(Integer.valueOf(values[0].trim()))
         .destinationAccount(Integer.valueOf(values[1].trim()))
