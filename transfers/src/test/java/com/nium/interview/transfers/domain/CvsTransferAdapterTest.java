@@ -42,4 +42,12 @@ class CvsTransferAdapterTest {
     Transfer result = testee.getTransfer(commentedLine);
     assertNull(result);
   }
+
+  @Test
+  public void getTransfer_whenReceiveHeader_thenReturnsNull() {
+
+    String commentedLine = "SOURCE_ACCT, DESTINATION_ACCT, AMOUNT, DATE, TRANSFERID";
+    Transfer result = testee.getTransfer(commentedLine);
+    assertNull(result);
+  }
 }
