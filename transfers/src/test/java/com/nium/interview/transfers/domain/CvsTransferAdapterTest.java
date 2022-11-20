@@ -1,6 +1,7 @@
 package com.nium.interview.transfers.domain;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -32,5 +33,13 @@ class CvsTransferAdapterTest {
     assertEquals(AMOUNT, result.getAmount());
     assertEquals(DATE, result.getDate());
     assertEquals(TRANSFER_ID, result.getTransferId());
+  }
+
+  @Test
+  public void getTransfer_whenReceiveComments_thenReturnsNull() {
+
+    String commentedLine = "# Date: 15/08/2055";
+    Transfer result = testee.getTransfer(commentedLine);
+    assertNull(result);
   }
 }
