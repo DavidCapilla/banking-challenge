@@ -8,4 +8,8 @@ public class AccountSummary {
 
   private Account account;
   private Integer numberOfTimesUsedAsSource;
+
+  public void increaseNumberOfTimesUsedAsSource() {
+    numberOfTimesUsedAsSource++;
+  }
 }
