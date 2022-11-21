@@ -21,39 +21,36 @@ public class AccountsSummariser {
   public void processData(Transfer transfer) {
 
     Integer sourceAccountId = transfer.getSourceAccount();
-    Integer destinationAccountId = transfer.getDestinationAccount();
-    if (nonNull(accountsSummary.get(sourceAccountId))) {
-      accountsSummary
-          .get(sourceAccountId)
-          .setNumberOfTimesUsedAsSource(
-              accountsSummary.get(sourceAccountId).getNumberOfTimesUsedAsSource() + 1);
-      accountsSummary
-          .get(sourceAccountId)
-          .getAccount()
-          .setBalance(
-              accountsSummary.get(sourceAccountId).getAccount().getBalance()
-                  - transfer.getAmount());
-    }
+    if (nonNull(accountsSummary.get(sourceAccountId)))
+      updateSourceAccountSummary(transfer, sourceAccountId);
 
-    if (nonNull(accountsSummary.get(destinationAccountId))) {
-      accountsSummary
-          .get(destinationAccountId)
-          .getAccount()
-          .setBalance(
-              accountsSummary.get(destinationAccountId).getAccount().getBalance()
-                  + transfer.getAmount());
-    } else {
-      AccountSummary destinationAccountSummary = new AccountSummary();
-      Account destinationAccount = new Account();
-      destinationAccount.setId(destinationAccountId);
-      destinationAccount.setBalance(transfer.getAmount());
-      destinationAccountSummary.setAccount(destinationAccount);
-      destinationAccountSummary.setNumberOfTimesUsedAsSource(1);
-      accountsSummary.put(destinationAccountId, destinationAccountSummary);
-    }
+    Integer destinationAccountId = transfer.getDestinationAccount();
+    if (nonNull(accountsSummary.get(destinationAccountId)))
+      updateDestinationAccountSummary(transfer, destinationAccountId);
+    else
+      accountsSummary.put(
+          destinationAccountId, createAccountSummary(transfer, destinationAccountId));
+  }
+
+  private AccountSummary createAccountSummary(Transfer transfer, Integer destinationAccountId) {
+
+    return AccountSummary.builder()
+        .account(Account.builder().id(destinationAccountId).balance(transfer.getAmount()).build())
+        .numberOfTimesUsedAsSource(1)
+        .build();
+  }
+
+  private void updateDestinationAccountSummary(Transfer transfer, Integer destinationAccountId) {
+    accountsSummary.get(destinationAccountId).getAccount().addToBalance(transfer.getAmount());
+  }
+
+  private void updateSourceAccountSummary(Transfer transfer, Integer sourceAccountId) {
+    accountsSummary.get(sourceAccountId).increaseNumberOfTimesUsedAsSource();
+    accountsSummary.get(sourceAccountId).getAccount().subtractFromBalance(transfer.getAmount());
   }
 
   public List<Account> getAccounts() {
+
     return accountsSummary.values().stream()
         .map(AccountSummary::getAccount)
         .sorted(Comparator.comparing(Account::getId))
@@ -61,6 +58,7 @@ public class AccountsSummariser {
   }
 
   public Integer getAccountWithHigherBalance() {
+
     return accountsSummary.values().stream()
         .max(this::compareAccountSummariesByBalance)
         .get()
@@ -70,6 +68,7 @@ public class AccountsSummariser {
 
   private int compareAccountSummariesByBalance(
       AccountSummary accountSummary1, AccountSummary accountSummary2) {
+
     return accountSummary1
         .getAccount()
         .getBalance()
@@ -77,6 +76,7 @@ public class AccountsSummariser {
   }
 
   public Integer getMostUsedAccountAsSource() {
+
     return accountsSummary.values().stream()
         .max(this::compareAccountSummariesByTimesUsed)
         .get()
@@ -86,6 +86,7 @@ public class AccountsSummariser {
 
   private int compareAccountSummariesByTimesUsed(
       AccountSummary accountSummary1, AccountSummary accountSummary2) {
+
     return accountSummary1
         .getNumberOfTimesUsedAsSource()
         .compareTo(accountSummary2.getNumberOfTimesUsedAsSource());
